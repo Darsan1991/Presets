@@ -1,5 +1,4 @@
-using DGames.Essentials.Editor;
-using DGames.Essentials.Extensions;
+using System.Linq;
 using DGames.Presets;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -22,6 +21,6 @@ public static class BoolPresetEditorHandler
 
     private static void ActivateAllBoolPresets()
     {
-        Object.FindObjectsOfType<Preset<bool>>(true).ForEach(p => p.gameObject.SetActive(true));
+        Object.FindObjectsOfType<Preset<bool>>(true).ToList().ForEach(p => p.gameObject.SetActive(true));
     }
 }
