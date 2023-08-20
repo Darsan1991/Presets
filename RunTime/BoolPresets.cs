@@ -1,5 +1,5 @@
+using System.Linq;
 using DGames.Essentials.Attributes;
-using DGames.Essentials.Extensions;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ namespace DGames.Presets
         [ContextMenu("Force Update")]
         public void ForceUpdate()
         {
-            FindObjectsOfType<Preset<bool>>().ForEach(p=>p.gameObject.SetActive(true));
+            FindObjectsOfType<Preset<bool>>().ToList().ForEach(p=>p.gameObject.SetActive(true));
         }
         
 

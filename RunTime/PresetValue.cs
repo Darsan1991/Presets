@@ -1,6 +1,4 @@
 using System;
-using DGames.Essentials;
-using DGames.Essentials.Attributes;
 using UnityEngine;
 
 namespace DGames.Presets
@@ -22,9 +20,9 @@ namespace DGames.Presets
         private T _value;
         private bool _hasCache;
 
-        private LazyLoadValue<IPresets<T>> _presets;
+        private IPresets<T> _presets;
 
-        public IPresets Presets => (_presets ??= new LazyLoadFromService<IPresets<T>>()).Value;
+        public IPresets Presets => (_presets ??= PresetServer.Get<T>());
 
         public T Value
         {
