@@ -1,5 +1,5 @@
 {
-    "name": "com.dgames.unityessentials",
+    "name": "com.dgames.presets",
     "version": "1.0.0",
     "displayName": "Essential Package",
     "description": "Provide basic functionality for project",
@@ -10,7 +10,8 @@
         "url" : ""
     },
     "dependencies": {
-        
+        "essentials": "",
+        "extensions": ""
     }
 
 }

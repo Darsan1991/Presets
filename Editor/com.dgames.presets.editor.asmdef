@@ -1,0 +1,20 @@
+{
+    "name": "com.dgames.presets.editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7d1f450a1a1b64ea480f003727cf75b8",
+        "GUID:99e342926c68d44a1845457735b0e217",
+        "GUID:8f269525b89614a339438e33af1b6bb1",
+        "GUID:2f79f469911e64fc08e837d895bcad8d",
+        "GUID:8ca9a68d20abc432dac11aa0e2d467ef"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
