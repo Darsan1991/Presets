@@ -19,7 +19,7 @@ namespace DGames.Presets
 
         protected override void OnSetValue(Color value)
         {
-            Target.Color = _ignoreAlpha ? value.WithAlpha(Target.Color.a) : value;
+            Target.Color = _ignoreAlpha ? new Color(value.r,value.g,value.b,Target.Color.a) : value;
         }
 
         private void Update()
