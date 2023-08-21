@@ -37,7 +37,7 @@ namespace DGames.Presets.Utils
                 return default;
 
             var result = (object)Resources.Load(path, targetType);
-            Debug.Log(AssetDatabase.GetAssetPath((UnityEngine.Object)result));
+            // Debug.Log(AssetDatabase.GetAssetPath((UnityEngine.Object)result));
             _cacheScriptables.Add(new TypeAndTag { Tag = name, Type = type }, result);
 
             return result;

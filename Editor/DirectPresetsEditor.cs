@@ -18,12 +18,12 @@ namespace DGames.Presets.Editor
         {
             _childrenField = serializedObject.FindProperty("childPresets");
             _keyValuePairs = new ReorderableList(serializedObject,
-                serializedObject.FindProperty(DirectPresets<int>.KEY_VALUE_FIELD),true,true,true,true)
+                serializedObject.FindProperty(DirectPresets<int>.KEY_VALUE_FIELD), true, true, true, true)
             {
                 multiSelect = true
             };
 
-            _keyValuePairs.drawElementCallback = (rect, index, active, focused) =>
+            _keyValuePairs.drawElementCallback = (rect, index, _, _) =>
             {
                 UnityEditor.EditorGUI.PropertyField(rect,
                     _keyValuePairs.serializedProperty.GetArrayElementAtIndex(index), true);
@@ -34,75 +34,86 @@ namespace DGames.Presets.Editor
                     _keyValuePairs.serializedProperty.GetArrayElementAtIndex(index));
 
             _keyValuePairs.drawHeaderCallback = rect => UnityEditor.EditorGUI.LabelField(rect, "Key Vs Values");
-
         }
 
 
-        public override void OnInspectorGUI()
+        protected override void OnContentGUI()
         {
             serializedObject.Update();
 
-            UnityEditor.EditorGUI.BeginChangeCheck();
 
             CacheIfNeeded();
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            EditorGUILayout.BeginHorizontal();
-            _childrenFold = UnityEditor.EditorGUI.Foldout(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(13)),
-                _childrenFold, "");
-            EditorGUILayout.LabelField(GetTitleWithDashes("CHILDREN SECTION", 120),_titleStyle);
-            EditorGUILayout.EndHorizontal();
-            
-
-            var notifiedChanged = false;
-            if (_childrenFold)
-            {
-                UnityEditor.EditorGUI.indentLevel++;
-                _childrenField.isExpanded = true;
-                EditorGUILayout.PropertyField(_childrenField);
-
-                EditorGUILayout.BeginVertical(GUI.skin.box);
-
-                _newChildName = EditorGUILayout.TextField(_newChildName);
-
-                UnityEditor.EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_newChildName));
-                EditorGUILayout.Space();
-                if (GUILayout.Button("Add Child"))
-                {
-                    var values = CreateInstance(target.GetType());
-                    values.name = _newChildName;
-                    _childrenField.InsertArrayElementAtIndex(_childrenField.arraySize);
-                    var property = _childrenField.GetArrayElementAtIndex(_childrenField.arraySize - 1);
-
-                    AssetDatabase.AddObjectToAsset(values, target);
-                    AssetDatabase.SaveAssetIfDirty(target);
-                    property.objectReferenceValue = values;
-                    _newChildName = "";
-                    notifiedChanged = true;
-                }
-
-                UnityEditor.EditorGUI.EndDisabledGroup();
-
-                EditorGUILayout.EndVertical();
-
-                UnityEditor.EditorGUI.indentLevel--;
-                
-            }
-
-            EditorGUILayout.EndVertical();
+            DrawChildrenSection(out var notifiedChanged);
             EditorGUILayout.Space();
-            
-
             _keyValuePairs.DoLayoutList();
-
-
-            if (UnityEditor.EditorGUI.EndChangeCheck())
-                serializedObject.ApplyModifiedProperties();
-
-
+            serializedObject.ApplyModifiedProperties();
             if (notifiedChanged)
             {
                 NotifyChanged?.Invoke(this);
             }
+        }
+
+        private void DrawChildrenSection(out bool notifiedChanged)
+        {
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            DrawChildrenSectionTitle();
+            if (_childrenFold)
+            {
+                UnityEditor.EditorGUI.indentLevel++;
+                DrawChildrenFoldContent(out notifiedChanged);
+                UnityEditor.EditorGUI.indentLevel--;
+            }
+            else
+            {
+                notifiedChanged = false;
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawChildrenSectionTitle()
+        {
+            EditorGUILayout.BeginHorizontal();
+            _childrenFold = UnityEditor.EditorGUI.Foldout(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(13)),
+                _childrenFold, "");
+            EditorGUILayout.LabelField(GetTitleWithDashes("CHILDREN SECTION", 120), _titleStyle);
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawChildrenFoldContent(out bool notifiedChanged)
+        {
+            _childrenField.isExpanded = true;
+            EditorGUILayout.PropertyField(_childrenField);
+
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+
+            _newChildName = EditorGUILayout.TextField(_newChildName);
+
+            UnityEditor.EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_newChildName));
+            EditorGUILayout.Space();
+            if (GUILayout.Button("Add Child"))
+            {
+                AddChild();
+                notifiedChanged = true;
+            }
+
+            UnityEditor.EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.EndVertical();
+            notifiedChanged = false;
+        }
+
+        private void AddChild()
+        {
+            var values = CreateInstance(target.GetType());
+            values.name = _newChildName;
+            _childrenField.InsertArrayElementAtIndex(_childrenField.arraySize);
+            var property = _childrenField.GetArrayElementAtIndex(_childrenField.arraySize - 1);
+
+            AssetDatabase.AddObjectToAsset(values, target);
+            AssetDatabase.SaveAssetIfDirty(target);
+            property.objectReferenceValue = values;
+            _newChildName = "";
         }
 
         private void CacheIfNeeded()
