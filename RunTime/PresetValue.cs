@@ -10,7 +10,7 @@ namespace DGames.Presets
         public T def;
         private PresetValue<T> _presetValue;
 
-        public PresetValue<T> PresetValue => _presetValue ??= new PresetValue<T>(key, def);
+        public PresetValue<T> PresetValue => _presetValue ??= new PresetValue<T>(key, def,!Application.isEditor);
 
         public T Value => PresetValue.Value;
 
