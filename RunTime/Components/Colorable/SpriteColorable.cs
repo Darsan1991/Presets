@@ -18,4 +18,19 @@ namespace DGames.Presets.Components
             _renderer = renderer;
         }
     }
+    public class SpriteSpritable : ISpritable
+    {
+        private readonly SpriteRenderer _renderer;
+
+        public Sprite Sprite
+        {
+            get => _renderer.sprite;
+            set => _renderer.sprite = value;
+        }
+
+        public SpriteSpritable(SpriteRenderer renderer)
+        {
+            _renderer = renderer;
+        }
+    }
 }
