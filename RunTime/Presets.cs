@@ -5,61 +5,10 @@ using System.Linq;
 using DGames.Essentials.Attributes;
 using UnityEngine;
 using DGames.Presets.Extensions;
-using DGames.Presets.Utils;
 
 
 namespace DGames.Presets
 {
-    public static class PresetServer
-    {
-        private static readonly Dictionary<Type, IPresets> _presets = new();
-
-        // ReSharper disable once MethodNameNotMeaningful
-        public static IPresets<T> Get<T>()
-        {
-#if DGAMES_SERVICES
-               return new Essentials.LazyLoadFromService<IPresets<T>>().Value;
-#else
-
-            if (!_presets.ContainsKey(typeof(IPresets<T>)))
-            {
-                _presets.Add(typeof(IPresets<T>),ScriptableUtils.GetDefault<IPresets<T>>());
-            }
-
-            return (IPresets<T>)_presets[typeof(IPresets<T>)];
-
-#endif
-        }
-
-        // ReSharper disable once MethodNameNotMeaningful
-        public static IPresets Get(Type type)
-        {
-#if DGAMES_SERVICES
-            return Essentials.Services.Get(typeof(IPresets<>).MakeGenericType(type)) as IPresets;
-#else
-            var presetType = typeof(IPresets<>).MakeGenericType(type);
-            if (!_presets.ContainsKey(presetType))
-            {
-                _presets.Add(presetType,(IPresets)ScriptableUtils.GetDefault(presetType));
-            }
-            return _presets[presetType];
-#endif
-        }
-        
-        #if UNITY_EDITOR
-
-        [UnityEditor.MenuItem("MyGames/Refresh/PresetScriptableCache")]
-        public static void RefreshPresetScriptableCache()
-        {
-            Debug.Log("Presets:"+_presets.Count);
-            _presets.Clear();
-            Debug.Log("Presets:"+_presets.Count);
-        }
-        #endif
-        
-    }
-
-
     public interface IPresets
     {
         event Action Updated;
@@ -72,48 +21,6 @@ namespace DGames.Presets
          T this[string key] { get; }
 
          T Get(string key, T def = default);
-    }
-    
-    public class PresetAdapter<T,TJ>:IPresets<T>
-    {
-        public event Action Updated;
-
-        private readonly IPresets<TJ> _fromPreset;
-
-        public PresetAdapter(IPresets<TJ> fromPreset)
-        {
-            _fromPreset = fromPreset;
-            fromPreset.Updated += FromPresetOnUpdated;
-        }
-
-        ~PresetAdapter()
-        {
-            _fromPreset.Updated -= FromPresetOnUpdated;
-        }
-        
-        private void FromPresetOnUpdated()
-        {
-            Updated?.Invoke();
-        }
-
-
-        public object GetValue(string key, object def = default)
-        {
-            def = Convert.ChangeType(def,typeof(TJ));
-            return Convert.ChangeType(_fromPreset.GetValue(key, def), typeof(T));
-        }
-
-        public bool HasKey(string key)
-        {
-            return _fromPreset.HasKey(key);
-        }
-
-        public T this[string key] => Get(key,def:default);
-
-        public T Get(string key, T def = default)
-        {
-            return (T)GetValue(key, def);
-        }
     }
 
     [TreeBasedResourceItem("childPresets")]
@@ -141,9 +48,9 @@ namespace DGames.Presets
 
         public abstract Presets CreateNewChild(string childName);
 
-        public abstract bool HasSelfContained(string key);
         public abstract bool CanUpdate(string key);
 #endif
+        public abstract bool HasSelfContained(string key);
     }
 
     public abstract partial class Presets<TJ> : Presets,IPresets<TJ>
