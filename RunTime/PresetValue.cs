@@ -30,7 +30,7 @@ namespace DGames.Presets
         [SerializeField] private PresetInfo<T> _info;
        
         
-        public bool Cache { get; set; } = true;
+        public bool Cache { get; set; } = !Application.isEditor;
         
         private T _value;
         private bool _hasCache;
