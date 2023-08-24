@@ -132,6 +132,9 @@ namespace DGames.Presets
 
         protected void CallUpdateEvent() => Updated?.Invoke();
 
+
+#if UNITY_EDITOR
+
         public abstract void Add(string key, object value);
 
         public abstract void UpdateItem(string keyPropertyStringValue, object defValue);
@@ -140,6 +143,7 @@ namespace DGames.Presets
 
         public abstract bool HasSelfContained(string key);
         public abstract bool CanUpdate(string key);
+#endif
     }
 
     public abstract partial class Presets<TJ> : Presets,IPresets<TJ>
@@ -210,6 +214,7 @@ namespace DGames.Presets
         
         
         public override bool HasSelfContained(string key)=> HasKey(key) && childPresets.All(c=>!c.HasKey(key));
+#if UNITY_EDITOR
 
         public override void UpdateItem(string keyPropertyStringValue, object defValue)
         {
@@ -222,7 +227,6 @@ namespace DGames.Presets
             ProcessUpdateItem(keyPropertyStringValue, defValue);
         }
 
-        #if UNITY_EDITOR
         public override Presets CreateNewChild(string childName)
         {
             var instance = (Presets<TJ>)CreateInstance(this.GetType());
@@ -239,8 +243,8 @@ namespace DGames.Presets
             
             return (Presets)instance;
         }
-#endif
         protected abstract void ProcessUpdateItem(string keyPropertyStringValue, object defValue);
+#endif
 
         public override object GetValue(string key, object def = default) => Get(key, (TJ)def);
 
