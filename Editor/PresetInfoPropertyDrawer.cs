@@ -33,6 +33,8 @@ namespace DGames.Presets.Editor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            CacheFieldsIfNeeded(property);
+
             if (_complexField)
             {
                 // Debug.Log("Complex Field:" + property.name);
@@ -43,7 +45,6 @@ namespace DGames.Presets.Editor
             }
 
 
-            CacheFieldsIfNeeded(property);
 
             position.height = GetPropertyHeight(property, label);
             position = DrawBackgroundColorBoxIfNeeded(position);
