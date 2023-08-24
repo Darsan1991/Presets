@@ -9,7 +9,7 @@ namespace DGames.Presets
 {
     public partial class DirectPresets<TJ> : Presets<TJ>
     {
-        [SerializeField][Inline] protected List<DirectKeyAndValue> keyAndValues = new();
+        [SerializeField][SpriteFold(propertyPath:"value")][Inline] protected List<DirectKeyAndValue> keyAndValues = new();
 
         public override IEnumerable<IKeyAndValue<TJ>> KeyAndValues => keyAndValues;
 

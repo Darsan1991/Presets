@@ -8,17 +8,17 @@ namespace DGames.Presets
     {
         public string key;
         public T def;
-        private PresetValue<T> _presetValue;
-
-        public PresetValue<T> PresetValue => _presetValue ??= new PresetValue<T>(key, def,!Application.isEditor);
-
-        public T Value => PresetValue.Value;
+        // private PresetValue<T> _presetValue;
+        //
+        // public PresetValue<T> PresetValue => _presetValue ??= new PresetValue<T>(key, def,!Application.isEditor);
+        //
+        // public T Value => PresetValue.Value;
 
         public PresetInfo(string key)
         {
             this.key = key;
             def = default;
-            _presetValue = null;
+            // _presetValue = null;
         }
 
 
