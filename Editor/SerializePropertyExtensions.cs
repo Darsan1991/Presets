@@ -425,7 +425,7 @@ namespace DGames.Presets.Editor
         }
         public static bool IsBuildInSerializableField(this SerializedPropertyType type)
         {
-            return type != SerializedPropertyType.ArraySize && type != SerializedPropertyType.Generic;
+            return type != SerializedPropertyType.ArraySize && type != SerializedPropertyType.Generic && type != SerializedPropertyType.ManagedReference ;
         }
         
         
