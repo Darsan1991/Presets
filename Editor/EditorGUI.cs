@@ -38,6 +38,18 @@ namespace DGames.Presets.Editor
             
             if (value is Sprite sprite)
                 return UnityEditor.EditorGUI.ObjectField(position, sprite, typeof(Sprite),false);
+            
+            if (value is Vector2 vector2)
+                return UnityEditor.EditorGUI.Vector2Field(position,GUIContent.none, vector2);
+            
+            if (value is Vector2Int vector2Int)
+                return UnityEditor.EditorGUI.Vector2IntField(position,GUIContent.none, vector2Int);
+            
+            if (value is Vector3 vector3)
+                return UnityEditor.EditorGUI.Vector3Field(position,GUIContent.none, vector3);
+            
+            if (value is Vector3Int vector3Int)
+                return UnityEditor.EditorGUI.Vector3Field(position,GUIContent.none, vector3Int);
 
             throw new NotImplementedException();
         }
