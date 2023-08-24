@@ -6,6 +6,21 @@ using UnityEngine;
 
 namespace DGames.Presets.Editor
 {
+    [CustomPropertyDrawer(typeof(PresetValue<>), true)]
+
+    public class PresetValuePropertyDrawer : PropertyDrawer
+    {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return UnityEditor.EditorGUI.GetPropertyHeight(property.FindPropertyRelative("_info"));
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            UnityEditor.EditorGUI.PropertyField(position, property.FindPropertyRelative("_info"), new GUIContent(property.displayName));
+        }
+    }
+    
     [CustomPropertyDrawer(typeof(PresetInfo<>), true)]
     public class PresetInfoPropertyDrawer : PropertyDrawer
     {
@@ -39,7 +54,7 @@ namespace DGames.Presets.Editor
             {
                 // Debug.Log("Complex Field:" + property.name);
                 UnityEditor.EditorGUI.PropertyField(position, property,
-                    label != GUIContent.none ? new GUIContent(property.displayName) : GUIContent.none, true);
+                    label != GUIContent.none ? string.IsNullOrEmpty(label.text) ? new GUIContent(property.displayName) : label   : GUIContent.none, true);
 
                 return;
             }
