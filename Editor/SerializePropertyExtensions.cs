@@ -323,8 +323,8 @@ namespace DGames.Presets.Editor
                     return property.rectIntValue;
                 case SerializedPropertyType.BoundsInt:
                     return property.boundsIntValue;
-                case SerializedPropertyType.Generic:
                 case SerializedPropertyType.Gradient:
+                case SerializedPropertyType.Generic:
                 case SerializedPropertyType.ManagedReference:
                 case SerializedPropertyType.Hash128:
                 default:
@@ -425,7 +425,7 @@ namespace DGames.Presets.Editor
         }
         public static bool IsBuildInSerializableField(this SerializedPropertyType type)
         {
-            return type != SerializedPropertyType.ArraySize && type != SerializedPropertyType.Generic && type != SerializedPropertyType.ManagedReference ;
+            return type != SerializedPropertyType.ArraySize && type != SerializedPropertyType.Generic && type != SerializedPropertyType.ManagedReference && type != SerializedPropertyType.Gradient ;
         }
         
         
