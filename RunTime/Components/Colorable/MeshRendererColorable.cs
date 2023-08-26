@@ -1,4 +1,3 @@
-using DGames.Essentials;
 using UnityEngine;
 
 namespace DGames.Presets.Components
@@ -9,11 +8,20 @@ namespace DGames.Presets.Components
 
         public Color Color
         {
-            get => (Application.isPlaying ?  _renderer.material : _renderer.sharedMaterial).color;
-            set
+            get => Material.color;
+            set => Material.color = value;
+        }
+
+        private Material Material
+        {
+            get
             {
-                var material = Application.isPlaying ?  _renderer.material : _renderer.sharedMaterial;
-                material.color = value;
+                #if UNITY_EDITOR
+               return UnityEditor.PrefabUtility.IsPartOfAnyPrefab(_renderer.gameObject) || !Application.isPlaying? _renderer.sharedMaterial : _renderer.material;
+
+#else
+   return _renderer.material;
+#endif
             }
         }
 
