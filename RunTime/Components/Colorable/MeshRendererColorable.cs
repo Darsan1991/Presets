@@ -9,8 +9,12 @@ namespace DGames.Presets.Components
 
         public Color Color
         {
-            get => _renderer.material.color;
-            set => _renderer.material.color = value;
+            get => (Application.isPlaying ?  _renderer.material : _renderer.sharedMaterial).color;
+            set
+            {
+                var material = Application.isPlaying ?  _renderer.material : _renderer.sharedMaterial;
+                material.color = value;
+            }
         }
 
         public MeshRendererColorable(MeshRenderer renderer)
