@@ -49,6 +49,11 @@ namespace DGames.Presets
         public abstract Presets CreateNewChild(string childName);
 
         public abstract bool CanUpdate(string key);
+
+        public abstract void Restore(string path);
+
+        public abstract void SaveTo(string folderPath);
+        
 #endif
         public abstract bool HasSelfContained(string key);
     }
