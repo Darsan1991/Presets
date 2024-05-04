@@ -69,7 +69,7 @@ namespace DGames.Presets
                 .Select(FilePathToAssetPath)
                 .Select(AssetDatabase.LoadAllAssetsAtPath).SelectMany(a => a)
                 .OfType<Preset>()
-                .Select(p => (allPresets.FirstOrDefault(item => item.name == p.name), p))
+                .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" ==  p.name), p))
                 .Where(p => p.Item1).ToList();
             
             itemAndPresets
@@ -100,7 +100,7 @@ namespace DGames.Presets
                 };
 
                 var assetPath = FilePathToAssetPath(folderPath);
-                AssetDatabase.CreateAsset(preset, assetPath+ $"{Path.DirectorySeparatorChar}{p.name}.preset");
+                AssetDatabase.CreateAsset(preset, assetPath+ $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.preset");
             });
         }
 
