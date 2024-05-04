@@ -25,7 +25,7 @@ namespace DGames.Presets
 
     }
     [Serializable]
-    public class PresetValue<T>
+    public class PresetValue<T> : IDisposable
     {
         [SerializeField] private PresetInfo<T> _info;
        
@@ -34,10 +34,28 @@ namespace DGames.Presets
         
         private T _value;
         private bool _hasCache;
+        private IPresets<T> _presetInternal;
 
-        private IPresets<T> _presets;
+        protected IPresets<T> PresetInternal
+        {
+            get => _presetInternal;
+            private set
+            {
+                if (_presetInternal != null)
+                {
+                    _presetInternal.Updated -= OnPresetUpdated;
+                }
 
-        public IPresets Presets => (_presets ??= PresetServer.Get<T>());
+                _presetInternal = value;
+                
+                if (_presetInternal != null)
+                {
+                    _presetInternal.Updated += OnPresetUpdated;
+                }
+            }
+        }
+
+        public IPresets Presets => (PresetInternal ??= PresetServer.Get<T>());
 
         public T Value
         {
@@ -58,15 +76,36 @@ namespace DGames.Presets
             }
         }
 
+        public Binder<T> Binder { get; } = new();
+        
+        
+
         public PresetValue(string key, T def = default, bool cache = true)
         {
             _info = new PresetInfo<T> { key = key, def = def };
             Cache = cache;
         }
 
-        public PresetValue()
+        public void Dispose()
         {
+            PresetInternal = null;
+        }
+
+        ~PresetValue()
+        {
+            Dispose();
+        }
+        
+
+        
+        private void OnPresetUpdated()
+        {
+            if(Cache)
+                return;
+            if(Presets.GetValue(this._info.key, this._info.def).Equals(_value))
+                return;
             
+            Binder.Raised(Value);
         }
 
         public void ForceUpdate()
