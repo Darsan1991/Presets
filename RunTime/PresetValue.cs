@@ -80,11 +80,12 @@ namespace DGames.Presets
         
         
 
-        public PresetValue(string key, T def = default, bool cache = true)
+        public PresetValue(string key, T def = default, bool? cache = null)
         {
             _info = new PresetInfo<T> { key = key, def = def };
-            Cache = cache;
+            Cache = cache ?? !Application.isEditor;
         }
+   
 
         public void Dispose()
         {
