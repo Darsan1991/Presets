@@ -35,6 +35,7 @@ namespace DGames.Presets
         private T _value;
         private bool _hasCache;
         private IPresets<T> _presetInternal;
+        private Binder<T> _binder;
 
         protected IPresets<T> PresetInternal
         {
@@ -76,7 +77,7 @@ namespace DGames.Presets
             }
         }
 
-        public Binder<T> Binder { get; } = new();
+        public Binder<T> Binder => _binder ??= new Binder<T>();
         
         
 
