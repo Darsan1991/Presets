@@ -6,7 +6,6 @@ using DGames.Essentials.Attributes;
 using DGames.Presets;
 #if UNITY_EDITOR
 using DGames.Essentials.Editor;
-
 using System.IO;
 using UnityEditor;
 using UnityEditor.Presets;
@@ -21,11 +20,27 @@ namespace DGames.Presets
         protected List<DirectKeyAndValue> keyAndValues = new();
 
         public override IEnumerable<IKeyAndValue<TJ>> KeyAndValues => keyAndValues;
-        
-       
-        
+
 
 #if UNITY_EDITOR
+
+
+#endif
+        [Serializable]
+        public class DirectKeyAndValue : KeyAndValue<TJ, TJ>
+        {
+            public override TJ ConvertToValue(TJ v)
+            {
+                return v;
+            }
+        }
+    }
+
+
+#if UNITY_EDITOR
+
+    public partial class DirectPresets<TJ>
+    {
         public override void Add(string key, object value)
         {
             var item = new DirectKeyAndValue
@@ -62,38 +77,31 @@ namespace DGames.Presets
             return HasSelfContained(key) && keyAndValues.Any(p => p.key == key && !p.useAnotherPreset)
                    || childPresets.Any(c => c.CanUpdate(key));
         }
-       
-   
-
-#endif
-        [Serializable]
-        public class DirectKeyAndValue : KeyAndValue<TJ, TJ>
-        {
-            public override TJ ConvertToValue(TJ v)
-            {
-                return v;
-            }
-        }
+    }
+    public partial class DirectPresets<TJ>
+    {
+        public const string KEY_VALUE_FIELD = nameof(keyAndValues);
     }
 
     public partial class DirectPresets<TJ>
     {
-         public static string LastFolderPath
-         {
-             get => EditorPrefs.GetString(Application.productName +"PresetPath");
-             private set => EditorPrefs.SetString(Application.productName +"PresetPath",value);
-         }
+        public static string LastFolderPath
+        {
+            get => EditorPrefs.GetString(Application.productName + "PresetPath");
+            private set => EditorPrefs.SetString(Application.productName + "PresetPath", value);
+        }
 
-         public override void Restore(string path)
+        public override void Restore(string path)
         {
             var allPresets = GetAllPreset(this).ToList();
             var itemAndPresets = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
-                .Select(p=> new {name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p)})
-                .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" ==  p.name), p))
+                .Select(p => new { name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p) })
+                .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" == p.name), p))
                 .Where(p => p.Item1).ToList();
-            
+
             itemAndPresets
                 .ForEach(p => RestoreFromJson((DirectPresets<TJ>)p.Item1, p.Item2.text));
+            RefreshDictionary();
         }
 
         private static string FilePathToAssetPath(string path)
@@ -102,10 +110,9 @@ namespace DGames.Presets
             path = path.Replace("\\", Path.DirectorySeparatorChar.ToString());
 
 
-            
             var items = path.Split(Path.DirectorySeparatorChar).ToList();
-            var index = items.FindIndex(item=>item == "Assets");
-            
+            var index = items.FindIndex(item => item == "Assets");
+
             return string.Join(Path.DirectorySeparatorChar, items.Skip(index));
         }
 
@@ -123,14 +130,16 @@ namespace DGames.Presets
             //     var assetPath = FilePathToAssetPath(folderPath);
             //     AssetDatabase.CreateAsset(preset, assetPath+ $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.preset");
             // });
-            
+
+
             allPresets.ForEach(p =>
             {
-                var json = JsonUtility.ToJson(DirectPresetSave<TJ>.Create(this.keyAndValues),true);
-                File.WriteAllText(folderPath+$"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.json",json);
-               
+                var json = JsonUtility.ToJson(DirectPresetSave<TJ>.Create(p.keyAndValues.ToList()), true);
+                Debug.Log(json);
+                p.keyAndValues.ForEach(pa => Debug.Log(pa.key));
+
+                File.WriteAllText(folderPath + $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.json", json);
             });
-            
             AssetDatabase.Refresh();
         }
 
@@ -138,16 +147,18 @@ namespace DGames.Presets
         {
             preset.ApplyTo(item, new[] { nameof(keyAndValues) });
         }
-        
+
         protected static void RestoreFromJson(DirectPresets<TJ> item, string json)
         {
             var directKeyAndValues = JsonUtility.FromJson<DirectPresetSave<TJ>>(json).keyAndValues.ToList();
-            item.keyAndValues = directKeyAndValues.Concat(item.keyAndValues.Where(k=> directKeyAndValues.All(d => d.key != k.key)).ToList()).ToList();
+            item.keyAndValues = directKeyAndValues
+                .Concat(item.keyAndValues.Where(k => directKeyAndValues.All(d => d.key != k.key)).ToList()).ToList();
+            item.keyAndValues.ToList().ForEach(p=> item.ProcessUpdateItem(p.key,p.value));
         }
 
-        protected static IEnumerable<Presets> GetAllPreset(Presets preset)
+        protected static IEnumerable<DirectPresets<TJ>> GetAllPreset(Presets preset)
         {
-            return new[] { preset }.Concat(preset.Children.SelectMany(GetAllPreset));
+            return new[] { preset }.Concat(preset.Children.SelectMany(GetAllPreset)).Cast<DirectPresets<TJ>>();
         }
 
         public void Load()
@@ -157,6 +168,7 @@ namespace DGames.Presets
             {
                 return;
             }
+
             LastFolderPath = new DirectoryInfo(path).Parent!.FullName;
             Restore(path);
         }
@@ -169,43 +181,37 @@ namespace DGames.Presets
             {
                 return;
             }
+
             LastFolderPath = new DirectoryInfo(path).Parent!.FullName;
             SaveTo(path);
         }
-        
     }
 
 
-    public partial class DirectPresets<TJ>
+    public partial class DirectPresets<TJ> : IToolButtons
     {
-        public const string KEY_VALUE_FIELD = nameof(keyAndValues);
-    }
-    
-    
-  #if UNITY_EDITOR
-    public partial class DirectPresets<TJ>: IToolButtons
-    {
-        public IEnumerable<ButtonArgs> ToolButtons=> parent == null ? new[]
-        {
-           
-            new ButtonArgs
+        public IEnumerable<ButtonArgs> ToolButtons => parent == null
+            ? new[]
             {
-                name = nameof(Load),
-                action = Load
-            }, new ButtonArgs
-            {
-                name = nameof(Save),
-                action = Save
-            },
-        } : Array.Empty<ButtonArgs>();
-        
+                new ButtonArgs
+                {
+                    name = nameof(Load),
+                    action = Load
+                },
+                new ButtonArgs
+                {
+                    name = nameof(Save),
+                    action = Save
+                },
+            }
+            : Array.Empty<ButtonArgs>();
     }
-    #endif
-    
+#endif
+
 }
 
 [Serializable]
-public struct DirectPresetSave<T>: IEnumerable<DirectPresets<T>.DirectKeyAndValue>
+public struct DirectPresetSave<T> : IEnumerable<DirectPresets<T>.DirectKeyAndValue>
 {
     public List<DirectPresets<T>.DirectKeyAndValue> keyAndValues;
 
@@ -218,7 +224,7 @@ public struct DirectPresetSave<T>: IEnumerable<DirectPresets<T>.DirectKeyAndValu
     {
         return keyAndValues?.GetEnumerator() ?? new List<DirectPresets<T>.DirectKeyAndValue>().GetEnumerator();
     }
-    
+
     public static DirectPresetSave<T> Create(IEnumerable<DirectPresets<T>.DirectKeyAndValue> keyAndValues)
     {
         return new DirectPresetSave<T>
