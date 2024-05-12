@@ -22,10 +22,19 @@ namespace DGames.Presets
         public override IEnumerable<IKeyAndValue<TJ>> KeyAndValues => keyAndValues;
 
 
-#if UNITY_EDITOR
+        public override void Restore(string path)
+        {
+            var allPresets = GetAllPreset(this).ToList();
+            var itemAndPresets = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
+                .Select(p => new { name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p) })
+                .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" == p.name), p))
+                .Where(p => p.Item1).ToList();
 
+            itemAndPresets
+                .ForEach(p => RestoreFromJson((DirectPresets<TJ>)p.Item1, p.Item2.text));
+            RefreshDictionary();
+        }
 
-#endif
         [Serializable]
         public class DirectKeyAndValue : KeyAndValue<TJ, TJ>
         {
@@ -91,18 +100,6 @@ namespace DGames.Presets
             private set => EditorPrefs.SetString(Application.productName + "PresetPath", value);
         }
 
-        public override void Restore(string path)
-        {
-            var allPresets = GetAllPreset(this).ToList();
-            var itemAndPresets = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
-                .Select(p => new { name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p) })
-                .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" == p.name), p))
-                .Where(p => p.Item1).ToList();
-
-            itemAndPresets
-                .ForEach(p => RestoreFromJson((DirectPresets<TJ>)p.Item1, p.Item2.text));
-            RefreshDictionary();
-        }
 
         private static string FilePathToAssetPath(string path)
         {

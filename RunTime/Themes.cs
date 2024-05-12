@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace DGames.Presets
 {
-    [DashboardResourceItem(displayName:"Themes",tabPath:"Games/Config")]
+    [DashboardResourceItem(displayName:"Themes",tabPath:"Games/Themes")]
     public class Themes:ScriptableObject, IEnumerable<Themes.Theme>
     {
         [SerializeField]private List<Theme> _themes = new();
@@ -42,6 +42,17 @@ namespace DGames.Presets
                 preset.Restore(path);
             });
         }
+        
+        public void LoadTheme(string id)
+        {
+            var theme = _themes.Find(t => t.id == id);
+            if (theme.presets != null)
+            {
+                LoadTheme(theme);
+            }
+        }
+        
+        
         
         public void SaveTheme(Theme theme)
         {

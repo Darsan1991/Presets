@@ -39,6 +39,7 @@ namespace DGames.Presets
 
         protected void CallUpdateEvent() => Updated?.Invoke();
 
+        public abstract void Restore(string path);
 
 #if UNITY_EDITOR
 
@@ -50,7 +51,6 @@ namespace DGames.Presets
 
         public abstract bool CanUpdate(string key);
 
-        public abstract void Restore(string path);
 
         public abstract void SaveTo(string folderPath);
         
