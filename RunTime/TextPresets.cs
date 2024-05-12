@@ -18,3 +18,7 @@ namespace DGames.Presets
 #endif
     }
 }
+
+namespace DGames.Presets
+{
+}
