@@ -1,6 +1,6 @@
 {
     "name": "com.dgames.presets",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "displayName": "Presets",
     "description": "Provide Preset Features",
     "unity":"2021.3",
