@@ -10,9 +10,18 @@ namespace DGames.Presets
         [Condition(nameof(manualTarget),true)][SerializeField] protected Component target;
 
         private TJ _target;
-
-        public TJ Target => _target ??= GetTarget(manualTarget? target:this);
         
+        public  Component TargetComponent => manualTarget ? target : this;
+
+        public TJ Target
+        {
+            get
+            {
+                Debug.Log(manualTarget);
+                return _target ??= GetTarget(TargetComponent);
+            }
+        }
+
         protected abstract TJ GetTarget(Component component);
     }
     
