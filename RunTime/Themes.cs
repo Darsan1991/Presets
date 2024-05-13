@@ -51,9 +51,10 @@ namespace DGames.Presets
                 LoadTheme(theme);
             }
         }
-        
-        
-        
+
+
+
+#if UNITY_EDITOR
         public void SaveTheme(Theme theme)
         {
             var path = DirectoryForTheme(theme);
@@ -67,6 +68,7 @@ namespace DGames.Presets
                 preset.SaveTo(path);
             });
         }
+#endif
 
         public static string DirectoryForTheme(Theme theme)
         {

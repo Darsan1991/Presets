@@ -24,15 +24,28 @@ namespace DGames.Presets
 
         public override void Restore(string path)
         {
+           // var allPresets = GetAllPreset(this).ToList();
+           //  var itemAndPresets = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
+           //      .Select(p => new { name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p) })
+           //      .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" == p.name), p))
+           //      .Where(p => p.Item1).ToList();
+           //  
+           // itemAndPresets.ForEach(p=> RestoreFromJson(p.Item1,p.Item2.text));
+
+#if UNITY_EDITOR
             var allPresets = GetAllPreset(this).ToList();
-            var itemAndPresets = Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
-                .Select(p => new { name = Path.GetFileNameWithoutExtension(p), text = File.ReadAllText(p) })
+            var itemAndPresets = Directory.GetFiles(path, "*.preset", SearchOption.AllDirectories)
+                .Select(FilePathToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<Preset>)
                 .Select(p => (allPresets.FirstOrDefault(item => $"{item.GetType().Name}-{item.name}" == p.name), p))
                 .Where(p => p.Item1).ToList();
-
+            
             itemAndPresets
-                .ForEach(p => RestoreFromJson((DirectPresets<TJ>)p.Item1, p.Item2.text));
+                .ForEach(p => RestorePreset((DirectPresets<TJ>)p.Item1, p.Item2));
+#endif
+       
             RefreshDictionary();
+            CallUpdateEvent();
         }
 
         [Serializable]
@@ -116,17 +129,17 @@ namespace DGames.Presets
         public override void SaveTo(string folderPath)
         {
             var allPresets = GetAllPreset(this).ToList();
-            // allPresets.ForEach(p =>
-            // {
-            //     var preset = new Preset(p)
-            //     {
-            //         excludedProperties = new[] { nameof(childPresets) }
-            //     };
-            //
-            //
-            //     var assetPath = FilePathToAssetPath(folderPath);
-            //     AssetDatabase.CreateAsset(preset, assetPath+ $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.preset");
-            // });
+            allPresets.ForEach(p =>
+            {
+                var preset = new Preset(p)
+                {
+                    excludedProperties = new[] { nameof(childPresets) }
+                };
+            
+            
+                var assetPath = FilePathToAssetPath(folderPath);
+                AssetDatabase.CreateAsset(preset, assetPath+ $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.preset");
+            });
 
 
             allPresets.ForEach(p =>
@@ -134,15 +147,20 @@ namespace DGames.Presets
                 var json = JsonUtility.ToJson(DirectPresetSave<TJ>.Create(p.keyAndValues.ToList()), true);
                 Debug.Log(json);
                 p.keyAndValues.ForEach(pa => Debug.Log(pa.key));
-
+            
                 File.WriteAllText(folderPath + $"{Path.DirectorySeparatorChar}{p.GetType().Name}-{p.name}.json", json);
             });
             AssetDatabase.Refresh();
         }
 
-        protected static void RestorePreset(Presets item, Preset preset)
+        protected static void RestorePreset(DirectPresets<TJ> item, Preset preset)
         {
+            var oldValues = item.keyAndValues.ToList();
             preset.ApplyTo(item, new[] { nameof(keyAndValues) });
+            var oldKeys = oldValues.Select(p=>p.key).Except(item.keyAndValues.Select(p=>p.key)).ToList();
+            oldKeys.ForEach(k=> item.Add(k,oldValues.First(p=>p.key == k).value));
+            
+           EditorUtility.SetDirty(item);
         }
 
         protected static void RestoreFromJson(DirectPresets<TJ> item, string json)
