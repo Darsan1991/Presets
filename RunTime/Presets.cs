@@ -190,7 +190,10 @@ namespace DGames.Presets
         public bool useAnotherPreset;
 
         [Condition(nameof(useAnotherPreset), false)]
-        [Inline()][PlayAudio][ShortLabel()]public TValue value;
+        // [Inline()]
+        [PlayAudio]
+        [ShortLabel()]
+        public TValue value;
 
         [Condition(nameof(useAnotherPreset), true)]
         public string sourcePresetKey;
