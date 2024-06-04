@@ -31,7 +31,7 @@ namespace DGames.Presets.Editor
 
             _keyValuePairs.elementHeightCallback = index =>
                 UnityEditor.EditorGUI.GetPropertyHeight(
-                    _keyValuePairs.serializedProperty.GetArrayElementAtIndex(index));
+                    _keyValuePairs.serializedProperty.GetArrayElementAtIndex(index),true);
 
             _keyValuePairs.drawHeaderCallback = rect => UnityEditor.EditorGUI.LabelField(rect, "Key Vs Values");
         }

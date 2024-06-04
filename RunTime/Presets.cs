@@ -206,12 +206,11 @@ namespace DGames.Presets
                 return string.IsNullOrEmpty(key) ? default : ConvertToValue(value);
             }
 
-            if (keys.Contains(sourcePresetKey))
+            if (!keys.Add(sourcePresetKey))
             {
                 throw new Exception($"Cycling keys:{sourcePresetKey}");
             }
 
-            keys.Add(sourcePresetKey);
             var presetKey = sourcePresetKey;
 
             var keyAndValue = valueList.FirstOrDefault(c => c.Key == presetKey);
