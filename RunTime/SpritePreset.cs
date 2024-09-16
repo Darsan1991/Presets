@@ -16,6 +16,12 @@ namespace DGames.Presets
         {
             Target.Sprite = value;
         }
+        
+        protected override void Reset()
+        {
+            base.Reset();
+            info.def = Target.Sprite;
+        }
 
     }
 }

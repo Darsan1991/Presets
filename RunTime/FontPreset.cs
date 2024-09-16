@@ -16,5 +16,11 @@ namespace DGames.Presets
         {
             return FontableComponentFactory.Create(component);
         }
+
+        protected override void Reset()
+        {
+            base.Reset();
+            info.def = Target.Font;
+        }
     }
 }

@@ -18,6 +18,12 @@ namespace DGames.Presets
         {
             return TMPFontableComponentFactory.Create(component);
         }
+
+        protected override void Reset()
+        {
+            base.Reset();
+            info.def = Target.Font;
+        }
     }
 }
 #endif

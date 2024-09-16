@@ -23,6 +23,8 @@ namespace DGames.Presets
         }
 
         protected abstract TJ GetTarget(Component component);
+
+     
     }
     
     [ExecuteInEditMode]
@@ -91,8 +93,13 @@ namespace DGames.Presets
         }
 
         protected abstract void OnSetValue(T value);
-        
 
+
+        protected virtual void Reset()
+        {
+            
+        }
+        
 
         protected virtual void OnValidate()
         {

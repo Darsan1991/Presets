@@ -33,5 +33,11 @@ namespace DGames.Presets
             // if (string.IsNullOrEmpty(info.key)) info.def = Target.Color;
             base.OnValidate();
         }
+
+        protected override void Reset()
+        {
+            base.Reset();
+            info.def = Target.Color;
+        }
     }
 }

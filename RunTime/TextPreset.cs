@@ -25,6 +25,12 @@ namespace DGames.Presets
         {
             return TextableComponentFactory.Create(component);
         }
+        
+        protected override void Reset()
+        {
+            base.Reset();
+            info.def = Target.Text;
+        }
     }
 }
 

@@ -17,5 +17,6 @@ namespace DGames.Presets
         }
 
         protected override ITextable GetTarget(Component component) => TextableComponentFactory.Create(component);
+
     }
 }
